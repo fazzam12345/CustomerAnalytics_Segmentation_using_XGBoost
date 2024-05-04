@@ -1,5 +1,4 @@
 import plotly.express as px
-
 import pandas as pd
 
 predictions_df = pd.read_pickle('artifacts/predictions_df.pkl')
