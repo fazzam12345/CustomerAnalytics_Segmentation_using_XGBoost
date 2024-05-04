@@ -1,6 +1,6 @@
 # Customer Analytics Dashboard
 
-This project aims to build a machine learning model to predict customer spending and probability of spending during a 90-day evaluation period. The code is a polished version of that developed by matt dancho https://www.business-science.io/img/business-science-logo.png.
+The objective of this project is to develop a machine learning model capable of forecasting customer expenditure and the likelihood of purchases within a 90-day assessment timeframe, alongside offering guidance on business analytics. The code is a polished version of that developed by matt dancho https://www.business-science.io/img/business-science-logo.png.
 The model is trained using XGBoost, a powerful gradient boosting library, and feature engineering is applied to create relevant features from the raw data.
 
 ## Data
@@ -71,6 +71,3 @@ To run the project locally, follow these steps:
 3. Run the `main.py` script to train the models, generate predictions, and save the artifacts.
 4. Launch the Streamlit app by running `streamlit run app.py`.
 
-## Contributions
-
-Contributions to this project are welcome. If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
