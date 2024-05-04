@@ -1,35 +1,64 @@
+Customer Lifetime Value Prediction Project - README
+Project Overview
 
-Customer Analytics Dashboard
-This project aims to provide a comprehensive analytics dashboard for customer data, focusing on predicting customer spending behavior and segmenting customers for targeted marketing efforts. The dashboard is built using Streamlit, a popular framework for building interactive web applications for machine learning and data science projects.
+This project predicts customer lifetime value (CLTV) and analyzes customer behavior for a music store using historical purchase data. We leverage machine learning and data science techniques to extract valuable insights and support data-driven decisions.
 
+Project Structure
 
-Components
-The project is structured into several key components, and is a polished version of the code developed by Matt Dancho https://www.business-science.io/img/business-science-logo.png:
+data: Stores the raw data file (CDNOW_master.txt).
+src: Contains Python scripts for data processing, analysis, and modeling.
+data_preparation.py: Handles data loading, cleaning, time splitting, and feature engineering.
+cohort_analysis.py: Performs cohort analysis to understand customer behavior over time.
+machine_learning.py: Trains and evaluates machine learning models for CLTV prediction.
+predictions.py: Defines functions to identify high-value customers, churn risks, and missed opportunities.
+utils.py: Provides utility functions for saving/loading models, predictions, and feature importance data.
+artifacts: Stores trained models, feature importance data, and prediction results.
+app.py: Creates a Streamlit application for interactive data exploration and visualization.
+app_plot.py: Provides sample code for creating visualizations using Plotly.
+environment.yml: Specifies the Python environment and required packages.
+requirements.txt: Lists the required Python packages.
+init.py: Indicates that the src directory is a Python package.
+README.md: This file provides an overview of the project.
+Data Preparation and Feature Engineering
 
-1. Streamlit Application (app.py)
-The main application is a Streamlit dashboard that visualizes customer spending data. It allows users to explore customers by predicted spend versus actual spend during a 90-day evaluation period. The dashboard includes interactive elements such as sliders to filter data and download segmentation data.
+Loading and Cleaning:
+Import and clean raw data (CDNOW_master.txt).
+Parse dates and handle missing values.
+Time Splitting:
+Split data into:
+Temporal In-Sample Data (Training): Purchases before a specified cutoff date.
+Temporal Out-of-Sample Data (Prediction/Evaluation): Purchases after the cutoff date.
+Feature Engineering:
+Target Variables:
+spend_90_total: Total spending per customer in the 90 days after the cutoff date.
+spend_90_flag: Binary flag indicating if a customer made any purchase in those 90 days.
+Predictive Features:
+Recency: Days since last purchase.
+Frequency: Number of purchases before the cutoff date.
+Monetary Value:
+price_sum: Total amount spent before the cutoff date.
+price_mean: Average transaction value.
+Feature Matrix: Combine engineered features and target variables for model training.
+Machine Learning and Model Training
 
-2. Plotly Visualization (app_plot.py)
-This script is used for generating scatter plots of customer data, focusing on frequency, predicted probability, and actual vs. predicted spending. It utilizes Plotly for creating interactive and visually appealing plots.
+Model Selection: Utilize XGBoost for regression and classification:
+XGBoost Regression: Predicts the total amount a customer will spend in the next 90 days.
+XGBoost Classification: Predicts the probability of a customer making a purchase in the next 90 days.
+Hyperparameter Tuning: Employ grid search with cross-validation to find the optimal hyperparameters (e.g., learning rate) using R² for regression and ROC-AUC for classification.
+Model Training and Evaluation: Train models with the best hyperparameters and evaluate their performance.
+Generating Insights and Predictions
 
-3. Environment Setup (environment.yml)
-The environment.yml file is used to create a Conda environment with all the necessary dependencies for running the project. This includes data manipulation libraries (Pandas, NumPy), visualization libraries (Plotly, Matplotlib), and machine learning libraries (XGBoost, Scikit-learn).
+Feature Importance: Analyze the importance of each feature in both models.
+Customer Segmentation:
+High-value Customers: High predicted spending and/or high purchase probability.
+Churn Risks: Low predicted spending and/or low purchase probability, especially recent customers unlikely to return.
+Missed Opportunities: Customers with no recent purchases but high predicted spending potential.
+Streamlit App: Explore and visualize customer segments interactively based on predicted spending and purchase likelihood.
+Project Benefits
 
-4. Data Preparation and Machine Learning (main.py, cohort_analysis.py, data_preparation.py, machine_learning.py, predictions.py, utils.py)
-These scripts are responsible for loading and cleaning the data, performing cohort analysis, feature engineering, and training machine learning models to predict customer spending. The models are trained using XGBoost, a powerful gradient boosting framework.
+This project provides valuable insights into customer behavior and CLTV, enabling data-driven decisions for:
 
-Running the Application
-To run the Streamlit application, follow these steps:
-
-Ensure you have Python 3.7.1 installed.
-Create a Conda environment using the environment.yml file:
-conda env create -f environment.yml
-Activate the Conda environment:
-conda activate lab_59_cust_lifetime_py
-Install the required Python packages listed in requirements.txt:
-pip install -r requirements.txt
-Run the Streamlit application:
-streamlit run app.py
-The application will be accessible in your web browser at the URL provided by Streamlit.
-
-
+Targeted Marketing Campaigns: Focus on high-value customers and those with high purchase probability.
+Customer Retention Strategies: Implement strategies to reduce churn and retain valuable customers.
+Resource Allocation: Optimize resource allocation based on customer segmentation and predicted CLTV.
+By combining machine learning, data analysis, and interactive visualization, this project provides a comprehensive framework for understanding and predicting customer behavior, ultimately leading to improved business outcomes for the music store.
