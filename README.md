@@ -1,64 +1,76 @@
-Customer Lifetime Value Prediction Project - README
-Project Overview
+# Customer Analytics Dashboard
 
-This project predicts customer lifetime value (CLTV) and analyzes customer behavior for a music store using historical purchase data. We leverage machine learning and data science techniques to extract valuable insights and support data-driven decisions.
+This project aims to build a machine learning model to predict customer spending and probability of spending during a 90-day evaluation period. The code is a polished version of that developed by matt dancho https://www.business-science.io/img/business-science-logo.png.
+The model is trained using XGBoost, a powerful gradient boosting library, and feature engineering is applied to create relevant features from the raw data.
 
-Project Structure
+## Data
 
-data: Stores the raw data file (CDNOW_master.txt).
-src: Contains Python scripts for data processing, analysis, and modeling.
-data_preparation.py: Handles data loading, cleaning, time splitting, and feature engineering.
-cohort_analysis.py: Performs cohort analysis to understand customer behavior over time.
-machine_learning.py: Trains and evaluates machine learning models for CLTV prediction.
-predictions.py: Defines functions to identify high-value customers, churn risks, and missed opportunities.
-utils.py: Provides utility functions for saving/loading models, predictions, and feature importance data.
-artifacts: Stores trained models, feature importance data, and prediction results.
-app.py: Creates a Streamlit application for interactive data exploration and visualization.
-app_plot.py: Provides sample code for creating visualizations using Plotly.
-environment.yml: Specifies the Python environment and required packages.
-requirements.txt: Lists the required Python packages.
-init.py: Indicates that the src directory is a Python package.
-README.md: This file provides an overview of the project.
-Data Preparation and Feature Engineering
+The dataset used in this project is `CDNOW_master.txt`, which contains customer purchase data with the following columns:
 
-Loading and Cleaning:
-Import and clean raw data (CDNOW_master.txt).
-Parse dates and handle missing values.
-Time Splitting:
-Split data into:
-Temporal In-Sample Data (Training): Purchases before a specified cutoff date.
-Temporal Out-of-Sample Data (Prediction/Evaluation): Purchases after the cutoff date.
-Feature Engineering:
-Target Variables:
-spend_90_total: Total spending per customer in the 90 days after the cutoff date.
-spend_90_flag: Binary flag indicating if a customer made any purchase in those 90 days.
-Predictive Features:
-Recency: Days since last purchase.
-Frequency: Number of purchases before the cutoff date.
-Monetary Value:
-price_sum: Total amount spent before the cutoff date.
-price_mean: Average transaction value.
-Feature Matrix: Combine engineered features and target variables for model training.
-Machine Learning and Model Training
+- `customer_id`: A unique identifier for each customer.
+- `date`: The date of the purchase.
+- `quantity`: The quantity of items purchased.
+- `price`: The price of the items purchased.
 
-Model Selection: Utilize XGBoost for regression and classification:
-XGBoost Regression: Predicts the total amount a customer will spend in the next 90 days.
-XGBoost Classification: Predicts the probability of a customer making a purchase in the next 90 days.
-Hyperparameter Tuning: Employ grid search with cross-validation to find the optimal hyperparameters (e.g., learning rate) using R² for regression and ROC-AUC for classification.
-Model Training and Evaluation: Train models with the best hyperparameters and evaluate their performance.
-Generating Insights and Predictions
+## Data Preparation
 
-Feature Importance: Analyze the importance of each feature in both models.
-Customer Segmentation:
-High-value Customers: High predicted spending and/or high purchase probability.
-Churn Risks: Low predicted spending and/or low purchase probability, especially recent customers unlikely to return.
-Missed Opportunities: Customers with no recent purchases but high predicted spending potential.
-Streamlit App: Explore and visualize customer segments interactively based on predicted spending and purchase likelihood.
-Project Benefits
+The `load_and_clean_data` function in `data_preparation.py` reads the raw data from the `CDNOW_master.txt` file and performs data cleaning steps, including:
 
-This project provides valuable insights into customer behavior and CLTV, enabling data-driven decisions for:
+1. Assigning proper column names.
+2. Converting the `date` column to a datetime format.
+3. Removing any rows with missing values.
 
-Targeted Marketing Campaigns: Focus on high-value customers and those with high purchase probability.
-Customer Retention Strategies: Implement strategies to reduce churn and retain valuable customers.
-Resource Allocation: Optimize resource allocation based on customer segmentation and predicted CLTV.
-By combining machine learning, data analysis, and interactive visualization, this project provides a comprehensive framework for understanding and predicting customer behavior, ultimately leading to improved business outcomes for the music store.
+## Time Splitting
+
+The `time_splitting` function in `data_preparation.py` splits the data into two sets:
+
+1. **Temporal In-Set**: This set contains customer purchase data up to a specified cutoff date (90 days before the maximum date in the dataset).
+2. **Temporal Out-Set**: This set contains customer purchase data after the cutoff date, representing the 90-day evaluation period.
+
+## Feature Engineering
+
+The `feature_engineering` function in `data_preparation.py` creates the following features from the temporal in-set data:
+
+1. **Recency**: The number of days since the customer's last purchase before the cutoff date.
+2. **Frequency**: The number of purchases made by the customer before the cutoff date.
+3. **Monetary Value**: The total amount spent by the customer (`price_sum`) and the average amount spent per purchase (`price_mean`) before the cutoff date.
+
+Additionally, the function calculates the following target variables from the temporal out-set data:
+
+1. **Spend Amount (`spend_90_total`)**: The total amount spent by the customer during the 90-day evaluation period.
+2. **Spend Flag (`spend_90_flag`)**: A binary flag indicating whether the customer made a purchase during the 90-day evaluation period.
+
+These features and target variables are combined into a single `features_df` DataFrame, which is used for training the machine learning models.
+
+## Machine Learning Models
+
+The `machine_learning` function in `machine_learning.py` trains two separate XGBoost models:
+
+1. **XGBoost Regressor**: This model predicts the total spend amount (`spend_90_total`) for each customer during the 90-day evaluation period. The objective function used for this model is `"reg:squarederror"`, and grid search cross-validation is performed to tune the `learning_rate` hyperparameter, optimizing for the R-squared metric.
+
+2. **XGBoost Classifier**: This model predicts the probability (`pred_prob`) of a customer making a purchase (`spend_90_flag`) during the 90-day evaluation period. The objective function used for this model is `"binary:logistic"`, and grid search cross-validation is performed to tune the `learning_rate` hyperparameter, optimizing for the ROC-AUC metric.
+
+The function also calculates and stores the feature importance scores for each model using the `gain` importance type.
+
+## Model Deployment
+
+The trained models, along with the predictions and feature importance scores, are saved using the following functions in `utils.py`:
+
+- `save_predictions`: Saves the predictions from both models and the original features DataFrame to a pickle file (`artifacts/predictions_df.pkl`).
+- `save_importance`: Saves the feature importance scores for both models to separate pickle files (`artifacts/imp_spend_amount_df.pkl` and `artifacts/imp_spend_prob_df.pkl`).
+- `save_models`: Saves the trained XGBoost models to pickle files (`artifacts/xgb_reg_model.pkl` and `artifacts/xgb_clf_model.pkl`).
+
+The `app.py` file contains a Streamlit application that loads the saved models and predictions, allowing users to explore the customer data and visualize the predicted spend amount and probability. Users can filter customers based on the difference between their actual and predicted spend amounts using a slider.
+
+## Getting Started
+
+To run the project locally, follow these steps:
+
+1. Clone the repository.
+2. Install the required dependencies by running `pip install -r requirements.txt`.
+3. Run the `main.py` script to train the models, generate predictions, and save the artifacts.
+4. Launch the Streamlit app by running `streamlit run app.py`.
+
+## Contributions
+
+Contributions to this project are welcome. If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
